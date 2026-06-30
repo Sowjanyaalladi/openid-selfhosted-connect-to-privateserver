@@ -17,22 +17,15 @@ jobs:
           echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Add Private EC2 Host Key
+      - name: Add Private EC2 to Known Hosts
         run: |
           ssh-keyscan -H 10.0.142.134 >> ~/.ssh/known_hosts
 
-      - name: Test Connectivity
-        run: |
-          ping -c 4 10.0.142.134
-
       - name: Connect to Private EC2
         run: |
-          ssh -i ~/.ssh/id_rsa \
-            -o StrictHostKeyChecking=yes \
-            ec2-user@10.0.142.134 << 'EOF'
-            echo "Connected Successfully"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes ec2-user@10.0.142.134 << 'EOF'
             hostname
-            whoami
             pwd
+            whoami
             ls -la
           EOF
