@@ -19,17 +19,17 @@ jobs:
 
       - name: Add Private EC2 Host Key
         run: |
-          ssh-keyscan -H 172.31.21.87 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 10.0.142.134 >> ~/.ssh/known_hosts
 
       - name: Test Connectivity
         run: |
-          ping -c 4 172.31.21.87
+          ping -c 4 10.0.142.134
 
       - name: Connect to Private EC2
         run: |
           ssh -i ~/.ssh/id_rsa \
             -o StrictHostKeyChecking=yes \
-            ec2-user@172.31.21.87 << 'EOF'
+            ec2-user@10.0.142.134 << 'EOF'
             echo "Connected Successfully"
             hostname
             whoami
