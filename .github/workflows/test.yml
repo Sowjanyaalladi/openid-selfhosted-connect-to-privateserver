@@ -1,17 +1,17 @@
-name: Deploy to Private EC2
+name: Install Nginx on Private EC2
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  install-nginx:
     runs-on: self-hosted
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure SSH
+      - name: Configure SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
@@ -21,11 +21,35 @@ jobs:
         run: |
           ssh-keyscan -H 10.0.142.134 >> ~/.ssh/known_hosts
 
-      - name: Connect to Private EC2
+      - name: Install and Verify Nginx
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes ec2-user@10.0.142.134 << 'EOF'
+
+            echo "===== Connected to Private EC2 ====="
+
             hostname
-            pwd
             whoami
-            ls -la
+            pwd
+
+            echo "===== Updating Packages ====="
+            sudo dnf update -y
+
+            echo "===== Installing Nginx ====="
+            sudo dnf install -y nginx
+
+            echo "===== Starting Nginx ====="
+            sudo systemctl start nginx
+
+            echo "===== Enabling Nginx ====="
+            sudo systemctl enable nginx
+
+            echo "===== Nginx Version ====="
+            nginx -v
+
+            echo "===== Nginx Service Status ====="
+            sudo systemctl status nginx --no-pager
+
+            echo "===== Port 80 Status ====="
+            sudo ss -tuln | grep :80
+
           EOF
